@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Tally",
+      "hasCanvas": false,
+      "bodyTextLen": 54,
+      "bodyTextHash": "bcfc39e4b14f5520f0bcb87ee8f2bd55cc331463e3f725c56fdd967db099fdea",
+      "bodyTextPrefix": "Tally Tasks and money, in one list. On this device Add",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Tally",
+      "hasCanvas": false,
+      "bodyTextLen": 50,
+      "bodyTextHash": "62b351ef6ccb0e58339b772e41924e1f758b79b54a48d6420a3358f462723404",
+      "bodyTextPrefix": "Tally Tasks and money, in one list. On this device",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

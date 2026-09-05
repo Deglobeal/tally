@@ -1,0 +1,20 @@
+# Local environment secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Build/deployment output
+.vercel/
+dist/
+.output/
+.tanstack/
+
+# Local/runtime files
+.DS_Store
+
+# Historical local backups
+.auth-grok-backup/
+.auth-google-backup/

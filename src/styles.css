@@ -1,0 +1,157 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-priority-high: var(--priority-high);
+  --color-priority-medium: var(--priority-medium);
+  --color-priority-low: var(--priority-low);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+  --radius-2xl: calc(var(--radius) + 12px);
+  --radius-3xl: calc(var(--radius) + 16px);
+  --radius-4xl: calc(var(--radius) + 24px);
+  --spacing-safe: env(safe-area-inset-bottom, 0px);
+}
+
+:root {
+  --background: #f3efe6;
+  --foreground: #1c1915;
+  --card: #faf8f3;
+  --card-foreground: #1c1915;
+  --popover: #fbfaf6;
+  --popover-foreground: #1c1915;
+  --primary: #1e5c54;
+  --primary-foreground: #f4f1ea;
+  --secondary: #ebe6db;
+  --secondary-foreground: #1c1915;
+  --muted: #ebe6db;
+  --muted-foreground: #6b6560;
+  --accent: #e4ddd0;
+  --accent-foreground: #1c1915;
+  --destructive: #b42318;
+  --destructive-foreground: #faf8f3;
+  --border: color-mix(in oklab, #1c1915 12%, transparent);
+  --input: color-mix(in oklab, #1c1915 14%, transparent);
+  --ring: #1e5c54;
+  --priority-high: #b42318;
+  --priority-medium: #b45309;
+  --priority-low: #3f6b4a;
+  --ink: #1c1915;
+  --paper: #f3efe6;
+  --radius: 0.75rem;
+  --shadow-border:
+    0px 0px 0px 1px rgba(28, 25, 21, 0.06),
+    0px 1px 2px -1px rgba(28, 25, 21, 0.06),
+    0px 2px 4px 0px rgba(28, 25, 21, 0.04);
+  --shadow-border-hover:
+    0px 0px 0px 1px rgba(28, 25, 21, 0.1),
+    0px 1px 2px -1px rgba(28, 25, 21, 0.08),
+    0px 4px 10px 0px rgba(28, 25, 21, 0.06);
+  --motion-stagger: 40ms;
+  --motion-micro: 80ms;
+  --motion-quick: 150ms;
+  --motion-fast: 250ms;
+  --motion-medium: 350ms;
+  --motion-slow: 400ms;
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    background-image:
+      radial-gradient(1200px 500px at 10% -10%, color-mix(in oklab, var(--primary) 7%, transparent), transparent 60%),
+      radial-gradient(800px 400px at 100% 0%, color-mix(in oklab, #c4b8a0 18%, transparent), transparent 55%);
+    min-height: 100dvh;
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes tally-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.tally-enter {
+  animation: tally-enter var(--motion-slow) var(--ease-smooth-out) both;
+}
+
+.tally-enter-2 { animation-delay: 60ms; }
+.tally-enter-3 { animation-delay: 120ms; }
+.tally-enter-4 { animation-delay: 180ms; }
+
+@keyframes tally-alarm-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); opacity: 0.75; }
+}
+
+.tally-alarm-pulse {
+  animation: tally-alarm-pulse 1.6s ease-in-out infinite;
+}

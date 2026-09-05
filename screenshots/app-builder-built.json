@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Tally",
+      "hasCanvas": false,
+      "bodyTextLen": 339,
+      "bodyTextHash": "974a0e0e9ffca973dcd9681f24c3fd7a56bfb28c6da693ef5b417fc6d34d3179",
+      "bodyTextPrefix": "Tally Tasks and money, in one list. On this device Add Sign in P",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Tally",
+      "hasCanvas": false,
+      "bodyTextLen": 335,
+      "bodyTextHash": "ceb9c09e3e3419316d621de0160b68d40575dd6ac6e5264d0b9ee42395265dfe",
+      "bodyTextPrefix": "Tally Tasks and money, in one list. On this device Sign in PENDI",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}
