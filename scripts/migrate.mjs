@@ -1,48 +1,68 @@
 #!/usr/bin/env node
-/**
- * Deploy-time database migrator (node-postgres, `pg`).
- *
- * Runs during `npm run build` — on every Vercel deploy — applying pending files
- * in ../migrations to DATABASE_URL. Each file is applied in one transaction and
- * recorded in a `_migrations` table, so it runs once and is safe to re-run.
- *
- * The read is non-recursive, so the opt-in auth schema under migrations/auth/
- * is not applied to an app that never asked for sign-in.
- *
- * No DATABASE_URL (local / preview builds) -> skip; the PGLite fallback applies
- * the same files at startup instead (see src/lib/db.ts).
- */
+
 import { readdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import pg from "pg";
 import { pendingMigrations } from "./migration-plan.mjs";
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl = process.env.DATABASE_URL?.trim();
+
 if (!databaseUrl) {
   console.log(
-    "[migrate] DATABASE_URL not set — skipping (the PGLite fallback migrates itself).",
+    "[migrate] DATABASE_URL not set — skipping database migration.",
   );
   process.exit(0);
 }
 
-const migrationsDir = join(dirname(fileURLToPath(import.meta.url)), "..", "migrations");
+const migrationsDir = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "migrations",
+);
+
+function getDatabaseCaCert() {
+  const value = process.env.DATABASE_CA_CERT?.trim();
+
+  if (!value) {
+    console.warn("[migrate] DATABASE_CA_CERT is not set.");
+    return undefined;
+  }
+
+  const ca = value.replace(/\\n/g, "\n");
+
+  if (
+    !ca.includes("-----BEGIN CERTIFICATE-----") ||
+    !ca.includes("-----END CERTIFICATE-----")
+  ) {
+    throw new Error(
+      "[migrate] DATABASE_CA_CERT is not a valid PEM certificate.",
+    );
+  }
+
+  console.log("[migrate] DATABASE_CA_CERT loaded successfully.");
+
+  return ca;
+}
 
 async function main() {
   let entries;
+
   try {
     entries = await readdir(migrationsDir);
   } catch {
     console.log("[migrate] no migrations/ directory — nothing to do.");
     return;
   }
-  // An app with no schema of its own must not pay for a database connection.
-  if (pendingMigrations(entries, []).length === 0) {
+
+  const migrations = pendingMigrations(entries, []);
+
+  if (migrations.length === 0) {
     console.log("[migrate] no migrations — nothing to do.");
     return;
   }
 
-  const databaseCaCert = process.env.DATABASE_CA_CERT?.trim();
+  const databaseCaCert = getDatabaseCaCert();
 
   const pool = new pg.Pool({
     connectionString: databaseUrl,
@@ -54,48 +74,93 @@ async function main() {
         }
       : undefined,
   });
-  const client = await pool.connect();
+
+  let client;
+
   try {
-    await client.query(
-      "CREATE TABLE IF NOT EXISTS _migrations (name TEXT PRIMARY KEY, applied_at TIMESTAMPTZ NOT NULL DEFAULT now())",
-    );
-    const applied = (await client.query("SELECT name FROM _migrations")).rows.map(
-      (r) => r.name,
+    client = await pool.connect();
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS _migrations (
+        name TEXT PRIMARY KEY,
+        applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      )
+    `);
+
+    const appliedResult = await client.query(
+      "SELECT name FROM _migrations",
     );
 
+    const applied = appliedResult.rows.map((row) => row.name);
+
+    const pending = pendingMigrations(entries, applied);
+
     let count = 0;
-    for (const { name } of pendingMigrations(entries, applied)) {
-      const text = await readFile(join(migrationsDir, name), "utf8");
+
+    for (const { name } of pending) {
+      const text = await readFile(
+        join(migrationsDir, name),
+        "utf8",
+      );
+
       try {
         await client.query("BEGIN");
-        // pg's simple-query protocol runs a whole multi-statement file at once.
+
         await client.query(text);
-        await client.query("INSERT INTO _migrations (name) VALUES ($1)", [name]);
+
+        await client.query(
+          "INSERT INTO _migrations (name) VALUES ($1)",
+          [name],
+        );
+
         await client.query("COMMIT");
-      } catch (err) {
+
+        console.log(`[migrate] applied ${name}`);
+
+        count += 1;
+      } catch (error) {
         console.error(`[migrate] error applying ${name}`);
+
         try {
           await client.query("ROLLBACK");
         } catch {
-          // ROLLBACK fails when the connection died — keep the original error.
+          // Ignore rollback failure.
         }
-        throw err;
+
+        throw error;
       }
-      console.log(`[migrate] applied ${name}`);
-      count += 1;
     }
-    console.log(count ? `[migrate] done — ${count} migration(s) applied.` : "[migrate] up to date.");
+
+    console.log(
+      count
+        ? `[migrate] done — ${count} migration(s) applied.`
+        : "[migrate] up to date.",
+    );
   } finally {
-    client.release();
+    client?.release();
     await pool.end();
   }
 }
 
-main().catch((err) => {
-  console.error("[migrate] failed:", err?.message || err);
-  // pg errors carry the context needed to debug a bad SQL file.
-  for (const key of ["code", "detail", "hint", "position", "where"]) {
-    if (err?.[key] != null) console.error(`[migrate]   ${key}: ${err[key]}`);
+main().catch((error) => {
+  console.error(
+    "[migrate] failed:",
+    error?.message || error,
+  );
+
+  for (const key of [
+    "code",
+    "detail",
+    "hint",
+    "position",
+    "where",
+  ]) {
+    if (error?.[key] != null) {
+      console.error(
+        `[migrate] ${key}: ${error[key]}`,
+      );
+    }
   }
+
   process.exit(1);
 });
