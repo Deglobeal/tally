@@ -89,8 +89,20 @@ const databaseUrl = env("DATABASE_URL");
 /**
  * Real Postgres when DATABASE_URL is set, otherwise the app's embedded PGLite.
  */
+const databaseCaCert = env("DATABASE_CA_CERT")?.replace(/\\n/g, "\n");
+
 const database = databaseUrl
-  ? new Pool({ connectionString: databaseUrl })
+  ? new Pool({
+      connectionString: databaseUrl,
+      ssl: databaseCaCert
+        ? {
+            ca: databaseCaCert,
+            rejectUnauthorized: true,
+          }
+        : {
+            rejectUnauthorized: true,
+          },
+    })
   : {
       dialect: pgliteDialect(() => getPglite()),
       type: "postgres" as const,
