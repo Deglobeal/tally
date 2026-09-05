@@ -42,7 +42,18 @@ async function main() {
     return;
   }
 
-  const pool = new pg.Pool({ connectionString: databaseUrl, max: 1 });
+  const databaseCaCert = process.env.DATABASE_CA_CERT?.trim();
+
+  const pool = new pg.Pool({
+    connectionString: databaseUrl,
+    max: 1,
+    ssl: databaseCaCert
+      ? {
+          ca: databaseCaCert,
+          rejectUnauthorized: true,
+        }
+      : undefined,
+  });
   const client = await pool.connect();
   try {
     await client.query(
