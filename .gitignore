@@ -18,3 +18,5 @@ dist/
 # Historical local backups
 .auth-grok-backup/
 .auth-google-backup/
+.vercel
+.env*

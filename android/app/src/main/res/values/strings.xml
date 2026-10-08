@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TaskoraMint</string>
+    <string name="title_activity_main">TaskoraMint</string>
+    <string name="package_name">com.deglobeal.taskoramint</string>
+    <string name="custom_url_scheme">com.deglobeal.taskoramint</string>
+</resources>
